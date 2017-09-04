@@ -1,5 +1,5 @@
 http://download.pytorch.org/whl/torch-0.2.0.post3-cp27-none-macosx_10_7_x86_64.whl
-https://github.com/pliablepixels/tensor-builds/blob/master/tensorflow-1.2.1-cp27-cp27m-macosx_10_12_intel.whl?raw=true
+https://github.com/pliablepixels/tensor-builds/raw/master/tensorflow-1.2.1-cp27-cp27m-macosx_10_12_intel.whl
 
 backports.weakref==1.0rc1
 bleach==1.5.0
