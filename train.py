@@ -1,27 +1,29 @@
 from __future__ import print_function
+
+import math
+import random
 import sys
+import time
+
+import torch
+import torch.backends.cudnn as cudnn
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+from torch.autograd import Variable
+from torchvision import datasets, transforms
+
+import dataset
+from cfg import parse_cfg
+from darknet import Darknet
+from models.tiny_yolo import TinyYoloNet
+from region_loss import RegionLoss
+from utils import *
+
 if len(sys.argv) != 4:
     print('Usage:')
     print('python train.py datacfg cfgfile weightfile')
     exit()
-
-import time
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-import torch.backends.cudnn as cudnn
-from torchvision import datasets, transforms
-from torch.autograd import Variable
-
-import dataset
-import random
-import math
-from utils import *
-from cfg import parse_cfg
-from region_loss import RegionLoss
-from darknet import Darknet
-from models.tiny_yolo import TinyYoloNet
 
 
 # Training settings
@@ -50,7 +52,7 @@ scales        = [float(scale) for scale in net_options['scales'].split(',')]
 
 #Train parameters
 max_epochs    = max_batches*batch_size/nsamples+1
-use_cuda      = True
+use_cuda      = torch.cuda.is_available()
 seed          = int(time.time())
 eps           = 1e-5
 save_interval = 10  # epoches
@@ -78,7 +80,7 @@ processed_batches = model.seen/batch_size
 
 init_width        = model.width
 init_height       = model.height
-init_epoch        = model.seen/nsamples 
+init_epoch        = model.seen/nsamples
 
 kwargs = {'num_workers': num_workers, 'pin_memory': True} if use_cuda else {}
 test_loader = torch.utils.data.DataLoader(
@@ -131,8 +133,8 @@ def train(epoch):
                        shuffle=True,
                        transform=transforms.Compose([
                            transforms.ToTensor(),
-                       ]), 
-                       train=True, 
+                       ]),
+                       train=True,
                        seen=cur_model.seen,
                        batch_size=batch_size,
                        num_workers=num_workers),
@@ -225,9 +227,9 @@ def test(epoch):
             boxes = nms(boxes, nms_thresh)
             truths = target[i].view(-1, 5)
             num_gts = truths_length(truths)
-     
+
             total = total + num_gts
-    
+
             for i in range(len(boxes)):
                 if boxes[i][4] > conf_thresh:
                     proposals = proposals+1
@@ -251,6 +253,6 @@ if evaluate:
     logging('evaluating ...')
     test(0)
 else:
-    for epoch in range(init_epoch, max_epochs): 
+    for epoch in range(init_epoch, max_epochs):
         train(epoch)
         test(epoch)

@@ -1,12 +1,15 @@
 from __future__ import print_function
-import torch.optim as optim
+
 import os
-import torch
+
 import numpy as np
-from darknet import Darknet
+import torch
+import torch.optim as optim
 from PIL import Image
-from utils import image2torch, convert2cpu
 from torch.autograd import Variable
+
+from darknet import Darknet
+from utils import convert2cpu, image2torch
 
 cfgfile = 'face4.1re_95.91.cfg'
 weightfile = 'face4.1re_95.91.conv.15'
@@ -40,13 +43,16 @@ print('--- bn running_var ---')
 print(m.models[0][1].running_var)
 
 m.train()
-m = m.cuda()
+if torch.cuda.is_available():
+    m = m.cuda()
 
 optimizer = optim.SGD(m.parameters(), lr=1e-2, momentum=0.9, weight_decay=0.1)
 
 img = Image.open(imgpath)
 img = image2torch(img)
-img = Variable(img.cuda())
+if torch.cuda.is_available():
+    img = img.cuda()
+img = Variable(img)
 
 target = Variable(label)
 

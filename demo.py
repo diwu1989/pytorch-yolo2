@@ -1,8 +1,11 @@
-from utils import *
-from darknet import Darknet
 import cv2
+import torch
 
-def demo(cfgfile, weightfile):
+from darknet import Darknet
+from utils import *
+
+
+def demo(cfgfile, weightfile, use_cuda=torch.cuda.is_available()):
     m = Darknet(cfgfile)
     m.print_network()
     m.load_weights(weightfile)
@@ -15,8 +18,7 @@ def demo(cfgfile, weightfile):
     else:
         namesfile = 'data/names'
     class_names = load_class_names(namesfile)
- 
-    use_cuda = 1
+
     if use_cuda:
         m.cuda()
 
@@ -36,7 +38,7 @@ def demo(cfgfile, weightfile):
             cv2.waitKey(1)
         else:
              print("Unable to read image")
-             exit(-1) 
+             exit(-1)
 
 ############################################
 if __name__ == '__main__':

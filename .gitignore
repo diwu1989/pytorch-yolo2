@@ -5,4 +5,5 @@
 *.bk
 *.o
 *.so
+*.weights
 backup/

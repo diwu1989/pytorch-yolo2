@@ -1,11 +1,15 @@
 import sys
 import time
+
+import torch
 from PIL import Image, ImageDraw
+
+from darknet import Darknet
 from models.tiny_yolo import TinyYoloNet
 from utils import *
-from darknet import Darknet
 
-def detect(cfgfile, weightfile, imgfile):
+
+def detect(cfgfile, weightfile, imgfile, use_cuda=torch.cuda.is_available()):
     m = Darknet(cfgfile)
 
     m.print_network()
@@ -18,14 +22,13 @@ def detect(cfgfile, weightfile, imgfile):
         namesfile = 'data/coco.names'
     else:
         namesfile = 'data/names'
-    
-    use_cuda = 1
+
     if use_cuda:
         m.cuda()
 
     img = Image.open(imgfile).convert('RGB')
     sized = img.resize((m.width, m.height))
-    
+
     for i in range(2):
         start = time.time()
         boxes = do_detect(m, sized, 0.5, 0.4, use_cuda)
@@ -36,7 +39,7 @@ def detect(cfgfile, weightfile, imgfile):
     class_names = load_class_names(namesfile)
     plot_boxes(img, boxes, 'predictions.jpg', class_names)
 
-def detect_cv2(cfgfile, weightfile, imgfile):
+def detect_cv2(cfgfile, weightfile, imgfile, use_cuda=torch.cuda.is_available()):
     import cv2
     m = Darknet(cfgfile)
 
@@ -50,15 +53,14 @@ def detect_cv2(cfgfile, weightfile, imgfile):
         namesfile = 'data/coco.names'
     else:
         namesfile = 'data/names'
-    
-    use_cuda = 1
+
     if use_cuda:
         m.cuda()
 
     img = cv2.imread(imgfile)
     sized = cv2.resize(img, (m.width, m.height))
     sized = cv2.cvtColor(sized, cv2.COLOR_BGR2RGB)
-    
+
     for i in range(2):
         start = time.time()
         boxes = do_detect(m, sized, 0.5, 0.4, use_cuda)
@@ -84,14 +86,14 @@ def detect_skimage(cfgfile, weightfile, imgfile):
         namesfile = 'data/coco.names'
     else:
         namesfile = 'data/names'
-    
+
     use_cuda = 1
     if use_cuda:
         m.cuda()
 
     img = io.imread(imgfile)
     sized = resize(img, (m.width, m.height)) * 255
-    
+
     for i in range(2):
         start = time.time()
         boxes = do_detect(m, sized, 0.5, 0.4, use_cuda)
@@ -101,7 +103,6 @@ def detect_skimage(cfgfile, weightfile, imgfile):
 
     class_names = load_class_names(namesfile)
     plot_boxes_cv2(img, boxes, savename='predictions.jpg', class_names=class_names)
-
 
 
 
