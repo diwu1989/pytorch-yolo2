@@ -111,7 +111,7 @@ if __name__ == '__main__':
         cfgfile = sys.argv[1]
         weightfile = sys.argv[2]
         imgfile = sys.argv[3]
-        detect(cfgfile, weightfile, imgfile)
+        detect(cfgfile, weightfile, imgfile, use_cuda=False)
         #detect_cv2(cfgfile, weightfile, imgfile)
         #detect_skimage(cfgfile, weightfile, imgfile)
     else:
